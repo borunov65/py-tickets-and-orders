@@ -21,6 +21,11 @@ def create_order(tickets: list, username: str, date: str = None) -> Order:
         order = Order.objects.create(user=user)
     session_ids = {ticket["movie_session"] for ticket in tickets}
     sessions = MovieSession.objects.in_bulk(session_ids)
+    missing_ids = session_ids - sessions.keys()
+    if missing_ids:
+        raise ValueError(
+            f"MovieSession(s) with id(s) {missing_ids} not found."
+        )
     ticket_list = [
         Ticket(
             row=ticket["row"],
